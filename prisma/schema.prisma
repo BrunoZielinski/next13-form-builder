@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Form {
+  id          String  @id @default(uuid())
+  userId      String
+  isPublished Boolean @default(false)
+  name        String
+  description String  @default("")
+  content     String  @default("[]")
+
+  visits      Int @default(0)
+  submissions Int @default(0)
+
+  shareUrl String @unique @default(uuid())
+
+  formSubmissions FormSubmissions[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
+}
+
+model FormSubmissions {
+  id String @id @default(uuid())
+
+  form   Form   @relation(fields: [formId], references: [id], onDelete: Cascade)
+  formId String
+
+  content String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
